@@ -58,7 +58,7 @@ fn parse_three_letter_prefix(string_chars: Vec<char>) -> Option<i128> {
 
     // A valid three letter prefix will ALWAYS have "i" as the middle letter and "b" as the last
 
-    if prefix[1].to_ascii_lowercase() != 'i' || prefix[2].to_ascii_lowercase() != 'b' {
+    if !prefix[1].eq_ignore_ascii_case(&'i') || !prefix[2].eq_ignore_ascii_case(&'b') {
         return None;
     }
 
@@ -79,7 +79,7 @@ pub fn parse_prefixes(prefixed_string: String) -> Result<i128, String> {
     if string_length < 2 {
         // This isn't possible as we need at least one digit and one letter for the prefix.
 
-        return Err(format!("{} is not a prefixed string", prefixed_string));
+        return Err(format!("{prefixed_string} is not a prefixed string"));
     }
 
     // We need separate special case processing for strings of length 2, and 3. Then a general processing for 4 and up
@@ -89,7 +89,7 @@ pub fn parse_prefixes(prefixed_string: String) -> Result<i128, String> {
         if let Some(parsed) = parse_one_letter_prefix(string_chars, false) {
             return Ok(parsed);
         }
-        return Err(format!("{} is not a prefixed string.", prefixed_string));
+        return Err(format!("{prefixed_string} is not a prefixed string."));
     }
 
     // Two chars available
@@ -103,14 +103,14 @@ pub fn parse_prefixes(prefixed_string: String) -> Result<i128, String> {
             if let Some(parsed) = parse_one_letter_prefix(string_chars, false) {
                 return Ok(parsed);
             }
-            return Err(format!("{} is not a prefixed string.", prefixed_string));
+            return Err(format!("{prefixed_string} is not a prefixed string."));
         }
 
         // Prefix is the second to last char
         if let Some(parsed) = parse_two_letter_prefix(string_chars) {
             return Ok(parsed);
         }
-        return Err(format!("{} is not a prefixed string.", prefixed_string));
+        return Err(format!("{prefixed_string} is not a prefixed string."));
     }
 
     // Finally, we can implement the generic parser
@@ -128,20 +128,20 @@ pub fn parse_prefixes(prefixed_string: String) -> Result<i128, String> {
             if let Some(parsed) = parse_one_letter_prefix(string_chars, false) {
                 return Ok(parsed);
             }
-            return Err(format!("{} is not a prefixed string.", prefixed_string));
+            return Err(format!("{prefixed_string} is not a prefixed string."));
         }
         // 2 char prefix
         if let Some(parsed) = parse_two_letter_prefix(string_chars) {
             return Ok(parsed);
         }
-        return Err(format!("{} is not a prefixed string.", prefixed_string));
+        return Err(format!("{prefixed_string} is not a prefixed string."));
     }
     // 3 char prefix
     if let Some(parsed) = parse_three_letter_prefix(string_chars) {
         return Ok(parsed);
     }
 
-    Err(format!("{} is not a prefixed string.", prefixed_string))
+    Err(format!("{prefixed_string} is not a prefixed string."))
 }
 
 #[cfg(test)]
