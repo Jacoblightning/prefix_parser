@@ -1,7 +1,18 @@
+#![no_std]
+
+#![deny(clippy::all)]
+#![deny(clippy::pedantic)]
+#![deny(clippy::nursery)]
+#![deny(clippy::cargo)]
+
+extern crate alloc;
+
+use alloc::{format, vec::Vec, string::String};
+
 static PREFIXES: [char; 11] = ['b', 'k', 'm', 'g', 't', 'p', 'e', 'z', 'y', 'r', 'q'];
 
 /// Parses a string where the prefix is the last char
-fn parse_one_letter_prefix(string_chars: Vec<char>, si: bool) -> Option<i128> {
+fn parse_one_letter_prefix(string_chars: &[char], si: bool) -> Option<i128> {
     let prefix = string_chars.last().unwrap();
 
     let number_length = string_chars.len() - 1;
@@ -15,6 +26,9 @@ fn parse_one_letter_prefix(string_chars: Vec<char>, si: bool) -> Option<i128> {
         // If anyone knows of a more efficient method of doing this, let me know...
         if let Ok(number) = String::from_iter(&string_chars[..number_length]).parse::<i128>() {
             let base: i128 = if si { 1000 } else { 1024 };
+
+            // The prefix value can only be a maximum of 11
+            #[allow(clippy::cast_possible_truncation)]
             return Some(number * base.pow(prefix_value as u32));
         }
         // Non-prefix is not a number
@@ -24,7 +38,7 @@ fn parse_one_letter_prefix(string_chars: Vec<char>, si: bool) -> Option<i128> {
     None
 }
 
-fn parse_two_letter_prefix(string_chars: Vec<char>) -> Option<i128> {
+fn parse_two_letter_prefix(string_chars: &[char]) -> Option<i128> {
     let number_length = string_chars.len() - 2;
 
     let prefix = &string_chars[number_length..];
@@ -44,10 +58,10 @@ fn parse_two_letter_prefix(string_chars: Vec<char>) -> Option<i128> {
 
     // We have number_length + 1 here to strip off the end char and leave the number with a one char prefix.
     // This is fine as all the second char does is determine if the number is SI or binary
-    parse_one_letter_prefix(string_chars[..number_length + 1].to_owned(), si)
+    parse_one_letter_prefix(&string_chars[..=number_length], si)
 }
 
-fn parse_three_letter_prefix(string_chars: Vec<char>) -> Option<i128> {
+fn parse_three_letter_prefix(string_chars: &[char]) -> Option<i128> {
     let number_length = string_chars.len() - 3;
 
     let prefix = &string_chars[number_length..];
@@ -62,10 +76,14 @@ fn parse_three_letter_prefix(string_chars: Vec<char>) -> Option<i128> {
         return None;
     }
 
-    parse_one_letter_prefix(string_chars[..number_length + 1].to_owned(), false)
+    parse_one_letter_prefix(&string_chars[..=number_length], false)
 }
 
-pub fn parse_prefixes(prefixed_string: String) -> Result<i128, String> {
+
+/// # Errors
+///
+/// Will return Err if `prefixed_string` is not a valid prefixed string
+pub fn parse_prefixes(prefixed_string: &str) -> Result<i128, String> {
     if let Ok(parsed) = prefixed_string.parse::<i128>() {
         // If we can parse it without having to worry about and prefix, we should
         return Ok(parsed);
@@ -86,7 +104,7 @@ pub fn parse_prefixes(prefixed_string: String) -> Result<i128, String> {
 
     // Only one char available for the prefix
     if string_length == 2 {
-        if let Some(parsed) = parse_one_letter_prefix(string_chars, false) {
+        if let Some(parsed) = parse_one_letter_prefix(&string_chars, false) {
             return Ok(parsed);
         }
         return Err(format!("{prefixed_string} is not a prefixed string."));
@@ -100,14 +118,14 @@ pub fn parse_prefixes(prefixed_string: String) -> Result<i128, String> {
 
         if prefix.is_ascii_digit() {
             // Prefix is only the last char
-            if let Some(parsed) = parse_one_letter_prefix(string_chars, false) {
+            if let Some(parsed) = parse_one_letter_prefix(&string_chars, false) {
                 return Ok(parsed);
             }
             return Err(format!("{prefixed_string} is not a prefixed string."));
         }
 
         // Prefix is the second to last char
-        if let Some(parsed) = parse_two_letter_prefix(string_chars) {
+        if let Some(parsed) = parse_two_letter_prefix(&string_chars) {
             return Ok(parsed);
         }
         return Err(format!("{prefixed_string} is not a prefixed string."));
@@ -125,19 +143,19 @@ pub fn parse_prefixes(prefixed_string: String) -> Result<i128, String> {
         let prefix = string_chars[string_length - 2];
         if prefix.is_ascii_digit() {
             // 1 char prefix
-            if let Some(parsed) = parse_one_letter_prefix(string_chars, false) {
+            if let Some(parsed) = parse_one_letter_prefix(&string_chars, false) {
                 return Ok(parsed);
             }
             return Err(format!("{prefixed_string} is not a prefixed string."));
         }
         // 2 char prefix
-        if let Some(parsed) = parse_two_letter_prefix(string_chars) {
+        if let Some(parsed) = parse_two_letter_prefix(&string_chars) {
             return Ok(parsed);
         }
         return Err(format!("{prefixed_string} is not a prefixed string."));
     }
     // 3 char prefix
-    if let Some(parsed) = parse_three_letter_prefix(string_chars) {
+    if let Some(parsed) = parse_three_letter_prefix(&string_chars) {
         return Ok(parsed);
     }
 

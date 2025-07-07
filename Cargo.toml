@@ -2,5 +2,11 @@
 name = "prefix_parser"
 version = "0.1.0"
 edition = "2024"
+license = "Apache-2.0 OR MIT"
+repository = "https://github.com/Jacoblightning/prefix_parser"
+keywords = ["number", "suffix", "prefix", "SI", "binary"]
+description = "A parser for numbers with binary prefixes on the end. EX: Turning 1KB into 1000."
+categories = ["parsing", "encoding", "no-std"]
+resolver = "3"
 
 [dependencies]
