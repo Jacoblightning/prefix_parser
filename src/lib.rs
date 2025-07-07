@@ -1,6 +1,4 @@
-
 static PREFIXES: [char; 11] = ['b', 'k', 'm', 'g', 't', 'p', 'e', 'z', 'y', 'r', 'q'];
-
 
 /// Parses a string where the prefix is the last char
 fn parse_one_letter_prefix(string_chars: Vec<char>, si: bool) -> Option<i128> {
@@ -8,13 +6,15 @@ fn parse_one_letter_prefix(string_chars: Vec<char>, si: bool) -> Option<i128> {
 
     let number_length = string_chars.len() - 1;
 
-    if let Some(prefix_value) = PREFIXES.iter().position(|&c| c == prefix.to_ascii_lowercase()) {
+    if let Some(prefix_value) = PREFIXES
+        .iter()
+        .position(|&c| c == prefix.to_ascii_lowercase())
+    {
         // We have to check that the beginning is actually a number
 
         // If anyone knows of a more efficient method of doing this, let me know...
         if let Ok(number) = String::from_iter(&string_chars[..number_length]).parse::<i128>() {
-
-            let base: i128 = if si {1000} else {1024};
+            let base: i128 = if si { 1000 } else { 1024 };
             return Some(number * base.pow(prefix_value as u32));
         }
         // Non-prefix is not a number
@@ -56,7 +56,6 @@ fn parse_three_letter_prefix(string_chars: Vec<char>) -> Option<i128> {
 
     // A valid three letter prefix would always be binary, but you know how things are... They're not always valid
 
-
     // A valid three letter prefix will ALWAYS have "i" as the middle letter and "b" as the last
 
     if prefix[1].to_ascii_lowercase() != 'i' || prefix[2].to_ascii_lowercase() != 'b' {
@@ -81,7 +80,6 @@ pub fn parse_prefixes(prefixed_string: String) -> Result<i128, String> {
         // This isn't possible as we need at least one digit and one letter for the prefix.
 
         return Err(format!("{} is not a prefixed string", prefixed_string));
-
     }
 
     // We need separate special case processing for strings of length 2, and 3. Then a general processing for 4 and up
@@ -118,13 +116,13 @@ pub fn parse_prefixes(prefixed_string: String) -> Result<i128, String> {
     // Finally, we can implement the generic parser
 
     /* Here we check if the 3rd from last char is a digit. If it is, then we cannot have a 3 char
-       prefix so we go on to check the second to last char. if it is also a digit, then there must
-       be a 1 char prefix. If it is not, then it must be a 2 char prefix.
-     */
-    let prefix = string_chars[string_length-3];
+      prefix so we go on to check the second to last char. if it is also a digit, then there must
+      be a 1 char prefix. If it is not, then it must be a 2 char prefix.
+    */
+    let prefix = string_chars[string_length - 3];
 
     if prefix.is_ascii_digit() {
-        let prefix = string_chars[string_length-2];
+        let prefix = string_chars[string_length - 2];
         if prefix.is_ascii_digit() {
             // 1 char prefix
             if let Some(parsed) = parse_one_letter_prefix(string_chars, false) {
@@ -142,7 +140,6 @@ pub fn parse_prefixes(prefixed_string: String) -> Result<i128, String> {
     if let Some(parsed) = parse_three_letter_prefix(string_chars) {
         return Ok(parsed);
     }
-
 
     Err(format!("{} is not a prefixed string.", prefixed_string))
 }
@@ -221,7 +218,6 @@ mod tests {
         assert_eq!(result, 1);
         let result = parse_prefixes("1bb".into()).unwrap();
         assert_eq!(result, 1);
-
 
         let result = parse_prefixes("100000b".into()).unwrap();
         assert_eq!(result, 100000);
