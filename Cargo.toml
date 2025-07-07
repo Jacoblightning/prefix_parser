@@ -8,5 +8,6 @@ keywords = ["number", "suffix", "prefix", "SI", "binary"]
 description = "A parser for numbers with binary prefixes on the end. EX: Turning 1KB into 1000."
 categories = ["parsing", "encoding", "no-std"]
 resolver = "3"
+readme = "README.md"
 
 [dependencies]
