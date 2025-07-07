@@ -7,7 +7,7 @@ A parser for numbers with a binary/SI prefix on the end.
 call `prefix_parser::parse_prefixes` with the prefixed number to parse.
 
 ```rust
-let parsed = prefix_parser::parse_prefixes("216MiB");
+let parsed = prefix_parser::parse_prefixes("216MiB").unwrap();
 
 // 226492416 == 1024^2 * 216
 assert_eq!(parsed, 226492416);
