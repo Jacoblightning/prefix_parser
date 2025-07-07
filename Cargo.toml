@@ -10,4 +10,10 @@ categories = ["parsing", "encoding", "no-std"]
 resolver = "3"
 readme = "README.md"
 
+exclude = [
+    ".idea",
+    ".gitignore",
+    ".github"
+]
+
 [dependencies]
