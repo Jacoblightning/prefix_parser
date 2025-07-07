@@ -168,110 +168,110 @@ mod tests {
 
     #[test]
     fn test_one_letter_prefix() {
-        let result = parse_prefixes("4k".into()).unwrap();
+        let result = parse_prefixes("4k").unwrap();
         assert_eq!(result, 4096);
     }
 
     #[test]
     fn test_two_letter_binary_prefix() {
-        let result = parse_prefixes("4ki".into()).unwrap();
+        let result = parse_prefixes("4ki").unwrap();
         assert_eq!(result, 4096);
     }
 
     #[test]
     fn test_two_letter_si_prefix() {
-        let result = parse_prefixes("4kb".into()).unwrap();
+        let result = parse_prefixes("4kb").unwrap();
         assert_eq!(result, 4000);
     }
 
     #[test]
     fn test_three_letter_prefix() {
-        let result = parse_prefixes("4kib".into()).unwrap();
+        let result = parse_prefixes("4kib").unwrap();
         assert_eq!(result, 4096);
     }
 
     #[test]
     fn test_long_numbers() {
-        let result = parse_prefixes("1000m".into()).unwrap();
+        let result = parse_prefixes("1000m").unwrap();
         assert_eq!(result, 1048576000);
-        let result = parse_prefixes("4212ki".into()).unwrap();
+        let result = parse_prefixes("4212ki").unwrap();
         assert_eq!(result, 4313088);
-        let result = parse_prefixes("2231MB".into()).unwrap();
+        let result = parse_prefixes("2231MB").unwrap();
         assert_eq!(result, 2231000000);
-        let result = parse_prefixes("12412MiB".into()).unwrap();
+        let result = parse_prefixes("12412MiB").unwrap();
         assert_eq!(result, 13014925312);
     }
 
     #[test]
     fn test_correct_one_letter_prefixes() {
-        let result = parse_prefixes("1b".into()).unwrap();
+        let result = parse_prefixes("1b").unwrap();
         assert_eq!(result, 1);
-        let result = parse_prefixes("1k".into()).unwrap();
+        let result = parse_prefixes("1k").unwrap();
         assert_eq!(result, 1024);
-        let result = parse_prefixes("1m".into()).unwrap();
+        let result = parse_prefixes("1m").unwrap();
         assert_eq!(result, 1048576);
-        let result = parse_prefixes("1g".into()).unwrap();
+        let result = parse_prefixes("1g").unwrap();
         assert_eq!(result, 1073741824);
-        let result = parse_prefixes("1t".into()).unwrap();
+        let result = parse_prefixes("1t").unwrap();
         assert_eq!(result, 1099511627776);
-        let result = parse_prefixes("1p".into()).unwrap();
+        let result = parse_prefixes("1p").unwrap();
         assert_eq!(result, 1125899906842624);
-        let result = parse_prefixes("1e".into()).unwrap();
+        let result = parse_prefixes("1e").unwrap();
         assert_eq!(result, 1152921504606846976);
-        let result = parse_prefixes("1z".into()).unwrap();
+        let result = parse_prefixes("1z").unwrap();
         assert_eq!(result, 1180591620717411303424);
-        let result = parse_prefixes("1y".into()).unwrap();
+        let result = parse_prefixes("1y").unwrap();
         assert_eq!(result, 1208925819614629174706176);
-        let result = parse_prefixes("1r".into()).unwrap();
+        let result = parse_prefixes("1r").unwrap();
         assert_eq!(result, 1237940039285380274899124224);
-        let result = parse_prefixes("1q".into()).unwrap();
+        let result = parse_prefixes("1q").unwrap();
         assert_eq!(result, 1267650600228229401496703205376);
     }
 
     #[test]
     fn test_edge_cases() {
-        let result = parse_prefixes("1b".into()).unwrap();
+        let result = parse_prefixes("1b").unwrap();
         assert_eq!(result, 1);
-        let result = parse_prefixes("1bib".into()).unwrap();
+        let result = parse_prefixes("1bib").unwrap();
         assert_eq!(result, 1);
-        let result = parse_prefixes("1bb".into()).unwrap();
+        let result = parse_prefixes("1bb").unwrap();
         assert_eq!(result, 1);
 
-        let result = parse_prefixes("100000b".into()).unwrap();
+        let result = parse_prefixes("100000b").unwrap();
         assert_eq!(result, 100000);
-        let result = parse_prefixes("100000bib".into()).unwrap();
+        let result = parse_prefixes("100000bib").unwrap();
         assert_eq!(result, 100000);
-        let result = parse_prefixes("100000bb".into()).unwrap();
+        let result = parse_prefixes("100000bb").unwrap();
         assert_eq!(result, 100000);
     }
 
     #[test]
     #[should_panic]
     fn test_invalid_one_letter_prefix() {
-        let _result = parse_prefixes("1j".into()).expect("Test Passed");
+        let _result = parse_prefixes("1j").expect("Test Passed");
     }
 
     #[test]
     #[should_panic]
     fn test_invalid_input_1() {
-        let _result = parse_prefixes("7KBI".into()).expect("Test Passed");
+        let _result = parse_prefixes("7KBI").expect("Test Passed");
     }
 
     #[test]
     #[should_panic]
     fn test_invalid_input_2() {
-        let _result = parse_prefixes("5mn".into()).expect("Test Passed");
+        let _result = parse_prefixes("5mn").expect("Test Passed");
     }
 
     #[test]
     #[should_panic]
     fn test_invalid_input_3() {
-        let _result = parse_prefixes("1b23434b".into()).expect("Test Passed");
+        let _result = parse_prefixes("1b23434b").expect("Test Passed");
     }
 
     #[test]
     #[should_panic]
     fn test_invalid_input_4() {
-        let _result = parse_prefixes("231m4b".into()).expect("Test Passed");
+        let _result = parse_prefixes("231m4b").expect("Test Passed");
     }
 }
