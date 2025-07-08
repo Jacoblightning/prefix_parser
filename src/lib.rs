@@ -18,7 +18,25 @@ use alloc::{format, vec::Vec, string::String};
 
 static PREFIXES: [char; 11] = ['b', 'k', 'm', 'g', 't', 'p', 'e', 'z', 'y', 'r', 'q'];
 
-/// Parses a string where the prefix is the last char
+/// Parses an array of chars that is known to have a 1 char binary prefix on the end
+///
+/// # Arguments
+///
+/// `string_chars`: An array of chars with the last one being a binary prefix and the previous chars being digits
+/// `si`: A boolean value specifying whether the chars should be interpreted as binary or SI notation
+///
+/// # Returns
+///
+/// An Option<i128> containing the parsed value upon successful parsing.
+///
+/// If parsing failed, None will be returned
+///
+/// # Panics
+///
+/// This function should only panic if the return value was successfully parsed but over or underflowed the i128
+///
+/// (The value was below -2^127 or above 2^127-1)
+///
 fn parse_one_letter_prefix(string_chars: &[char], si: bool) -> Option<i128> {
     let prefix = string_chars.last().unwrap();
 
@@ -45,6 +63,25 @@ fn parse_one_letter_prefix(string_chars: &[char], si: bool) -> Option<i128> {
     None
 }
 
+
+/// Parses an array of chars that is known to have a 2 char binary prefix on the end
+///
+/// # Arguments
+///
+/// `string_chars`: An array of chars with the last 2 being a binary prefix and the previous chars being digits
+///
+/// # Returns
+///
+/// An Option<i128> containing the parsed value upon successful parsing.
+///
+/// If parsing failed, None will be returned
+///
+/// # Panics
+///
+/// This function should only panic if the return value was successfully parsed but over or underflowed the i128
+///
+/// (The value was below -2^127 or above 2^127-1)
+///
 fn parse_two_letter_prefix(string_chars: &[char]) -> Option<i128> {
     let number_length = string_chars.len() - 2;
 
@@ -68,6 +105,24 @@ fn parse_two_letter_prefix(string_chars: &[char]) -> Option<i128> {
     parse_one_letter_prefix(&string_chars[..=number_length], si)
 }
 
+/// Parses an array of chars that is known to have a 3 char binary prefix on the end
+///
+/// # Arguments
+///
+/// `string_chars`: An array of chars with the last 3 being a binary prefix and the previous chars being digits
+///
+/// # Returns
+///
+/// An Option<i128> containing the parsed value upon successful parsing.
+///
+/// If parsing failed, None will be returned
+///
+/// # Panics
+///
+/// This function should only panic if the return value was successfully parsed but over or underflowed the i128
+///
+/// (The value was below -2^127 or above 2^127-1)
+///
 fn parse_three_letter_prefix(string_chars: &[char]) -> Option<i128> {
     let number_length = string_chars.len() - 3;
 
@@ -94,7 +149,7 @@ fn parse_three_letter_prefix(string_chars: &[char]) -> Option<i128> {
 ///
 /// # Returns
 ///
-/// The value of `prefixed_string` interpreted as bytes
+/// The i128 value of `prefixed_string` interpreted as bytes
 ///
 /// # Panics
 ///
@@ -173,10 +228,11 @@ pub fn parse_prefixes(prefixed_string: &str) -> Result<i128, String> {
 
     // Finally, we can implement the generic parser
 
-    /* Here we check if the 3rd from last char is a digit. If it is, then we cannot have a 3 char
-      prefix so we go on to check the second to last char. if it is also a digit, then there must
-      be a 1 char prefix. If it is not, then it must be a 2 char prefix.
-    */
+    /*
+     * Here we check if the 3rd from last char is a digit. If it is, then we cannot have a 3 char
+     * prefix so we go on to check the second to last char. if it is also a digit, then there must
+     * be a 1 char prefix. If it is not, then it must be a 2 char prefix.
+     */
     let prefix = string_chars[string_length - 3];
 
     if prefix.is_ascii_digit() {
