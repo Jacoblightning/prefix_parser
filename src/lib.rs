@@ -4,9 +4,7 @@
 //! Helping you turn 12MiB into 12582912
 //!
 
-
 #![no_std]
-
 #![deny(clippy::all)]
 #![deny(clippy::pedantic)]
 #![deny(clippy::nursery)]
@@ -14,7 +12,7 @@
 
 extern crate alloc;
 
-use alloc::{format, vec::Vec, string::String};
+use alloc::{format, string::String, vec::Vec};
 
 static PREFIXES: [char; 11] = ['b', 'k', 'm', 'g', 't', 'p', 'e', 'z', 'y', 'r', 'q'];
 
@@ -62,7 +60,6 @@ fn parse_one_letter_prefix(string_chars: &[char], si: bool) -> Option<i128> {
     // Not a valid prefix
     None
 }
-
 
 /// Parses an array of chars that is known to have a 2 char binary prefix on the end
 ///
@@ -413,12 +410,13 @@ mod tests {
 
     #[test]
     #[should_panic(expected = "attempt to multiply with overflow")]
-    fn test_overflow() {           // This equals 2^127 bytes
+    fn test_overflow() {
+        // This equals 2^127 bytes
         let _result = parse_prefixes("134217728q");
     }
 
     #[test]
-    fn test_below_overflow(){
+    fn test_below_overflow() {
         let result = parse_prefixes("134217727q").unwrap();
 
         assert_eq!(result, 170141182192818631503457902219180900352);
