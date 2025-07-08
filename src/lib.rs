@@ -1,3 +1,10 @@
+//! # Prefix Parser
+//!
+//! `prefix_parser` is a library to help you parse bit and byte prefixes;
+//! Helping you turn 12MiB into 12582912
+//!
+
+
 #![no_std]
 
 #![deny(clippy::all)]
@@ -79,13 +86,46 @@ fn parse_three_letter_prefix(string_chars: &[char]) -> Option<i128> {
     parse_one_letter_prefix(&string_chars[..=number_length], false)
 }
 
-
+/// Parses a string with a binary prefix on the end and converts it into a number of bytes
+///
+/// # Arguments
+///
+/// `prefixed_string`: a &str, such as "5KB" or "2TiB" that should be processed.
+///
+/// # Returns
+///
+/// The value of `prefixed_string` interpreted as bytes
+///
+/// # Panics
+///
+/// This function will panic if the result adds up to over 2^127-1 bytes or lower than -2^127 bytes.
+///
+/// (170141183460469231731687303715884105727 and -170141183460469231731687303715884105728 bytes respectively)
+///
 /// # Errors
 ///
-/// Will return Err if `prefixed_string` is not a valid prefixed string
+/// Will return Err if `prefixed_string` is not a valid prefixed string.
+///
+/// This includes fractional numbers.
+///
+///
+/// # Example:
+///
+/// ```rust
+/// # fn main() -> Result<(), String> {
+/// use prefix_parser::parse_prefixes;
+///
+/// let to_parse = "2KiB";
+/// let parsed = parse_prefixes(to_parse)?;
+///
+/// // 2048 is 2Kib
+/// assert_eq!(parsed, 2048);
+/// #     Ok(())
+/// # }
+/// ```
 pub fn parse_prefixes(prefixed_string: &str) -> Result<i128, String> {
     if let Ok(parsed) = prefixed_string.parse::<i128>() {
-        // If we can parse it without having to worry about and prefix, we should
+        // If we can parse it without having to worry about a prefix, we should
         return Ok(parsed);
     }
 
