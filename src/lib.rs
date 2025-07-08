@@ -1,7 +1,7 @@
 //! # Prefix Parser
 //!
 //! `prefix_parser` is a library to help you parse bit and byte prefixes;
-//! Helping you turn 12MiB into 12582912
+//! Helping you turn "12MiB" into 12582912i128
 //!
 
 #![no_std]
