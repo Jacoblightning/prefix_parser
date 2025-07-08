@@ -266,6 +266,112 @@ mod tests {
         assert_eq!(result, 1237940039285380274899124224);
         let result = parse_prefixes("1q").unwrap();
         assert_eq!(result, 1267650600228229401496703205376);
+
+        let result = parse_prefixes("1bi").unwrap();
+        assert_eq!(result, 1);
+        let result = parse_prefixes("1ki").unwrap();
+        assert_eq!(result, 1024);
+        let result = parse_prefixes("1mi").unwrap();
+        assert_eq!(result, 1048576);
+        let result = parse_prefixes("1gi").unwrap();
+        assert_eq!(result, 1073741824);
+        let result = parse_prefixes("1ti").unwrap();
+        assert_eq!(result, 1099511627776);
+        let result = parse_prefixes("1pi").unwrap();
+        assert_eq!(result, 1125899906842624);
+        let result = parse_prefixes("1ei").unwrap();
+        assert_eq!(result, 1152921504606846976);
+        let result = parse_prefixes("1zi").unwrap();
+        assert_eq!(result, 1180591620717411303424);
+        let result = parse_prefixes("1yi").unwrap();
+        assert_eq!(result, 1208925819614629174706176);
+        let result = parse_prefixes("1ri").unwrap();
+        assert_eq!(result, 1237940039285380274899124224);
+        let result = parse_prefixes("1qi").unwrap();
+        assert_eq!(result, 1267650600228229401496703205376);
+
+        let result = parse_prefixes("1bib").unwrap();
+        assert_eq!(result, 1);
+        let result = parse_prefixes("1kib").unwrap();
+        assert_eq!(result, 1024);
+        let result = parse_prefixes("1mib").unwrap();
+        assert_eq!(result, 1048576);
+        let result = parse_prefixes("1gib").unwrap();
+        assert_eq!(result, 1073741824);
+        let result = parse_prefixes("1tib").unwrap();
+        assert_eq!(result, 1099511627776);
+        let result = parse_prefixes("1pib").unwrap();
+        assert_eq!(result, 1125899906842624);
+        let result = parse_prefixes("1eib").unwrap();
+        assert_eq!(result, 1152921504606846976);
+        let result = parse_prefixes("1zib").unwrap();
+        assert_eq!(result, 1180591620717411303424);
+        let result = parse_prefixes("1yib").unwrap();
+        assert_eq!(result, 1208925819614629174706176);
+        let result = parse_prefixes("1rib").unwrap();
+        assert_eq!(result, 1237940039285380274899124224);
+        let result = parse_prefixes("1qib").unwrap();
+        assert_eq!(result, 1267650600228229401496703205376);
+
+        let result = parse_prefixes("1bb").unwrap();
+        assert_eq!(result, 1);
+        let result = parse_prefixes("1kb").unwrap();
+        assert_eq!(result, 1000);
+        let result = parse_prefixes("1mb").unwrap();
+        assert_eq!(result, 1000000);
+        let result = parse_prefixes("1gb").unwrap();
+        assert_eq!(result, 1000000000);
+        let result = parse_prefixes("1tb").unwrap();
+        assert_eq!(result, 1000000000000);
+        let result = parse_prefixes("1pb").unwrap();
+        assert_eq!(result, 1000000000000000);
+        let result = parse_prefixes("1eb").unwrap();
+        assert_eq!(result, 1000000000000000000);
+        let result = parse_prefixes("1zb").unwrap();
+        assert_eq!(result, 1000000000000000000000);
+        let result = parse_prefixes("1yb").unwrap();
+        assert_eq!(result, 1000000000000000000000000);
+        let result = parse_prefixes("1rb").unwrap();
+        assert_eq!(result, 1000000000000000000000000000);
+        let result = parse_prefixes("1qb").unwrap();
+        assert_eq!(result, 1000000000000000000000000000000);
+    }
+
+    #[test]
+    fn test_negatives() {
+        let result = parse_prefixes("-1000m").unwrap();
+        assert_eq!(result, -1048576000);
+        let result = parse_prefixes("-4212ki").unwrap();
+        assert_eq!(result, -4313088);
+        let result = parse_prefixes("-2231MB").unwrap();
+        assert_eq!(result, -2231000000);
+        let result = parse_prefixes("-12412MiB").unwrap();
+        assert_eq!(result, -13014925312);
+    }
+
+    #[test]
+    fn test_no_prefix() {
+        let result = parse_prefixes("8675309").unwrap();
+        assert_eq!(result, 8675309);
+    }
+
+    #[test]
+    #[should_panic(expected = "attempt to multiply with overflow")]
+    fn test_overflow() {           // This equals 2^127 bytes
+        let _result = parse_prefixes("134217728q");
+    }
+
+    #[test]
+    fn test_below_overflow(){
+        let result = parse_prefixes("134217727q").unwrap();
+
+        assert_eq!(result, 170141182192818631503457902219180900352);
+        assert_eq!(result, (2u128.pow(127) - 1024u128.pow(10)) as i128);
+
+        let result = parse_prefixes("170141183460469231731687303715884105727BIB").unwrap();
+
+        assert_eq!(result, (2u128.pow(127) - 1) as i128);
+        assert_eq!(result, 170141183460469231731687303715884105727);
     }
 
     #[test]
@@ -286,31 +392,31 @@ mod tests {
     }
 
     #[test]
-    #[should_panic]
+    #[should_panic(expected = "Test Passed")]
     fn test_invalid_one_letter_prefix() {
         let _result = parse_prefixes("1j").expect("Test Passed");
     }
 
     #[test]
-    #[should_panic]
+    #[should_panic(expected = "Test Passed")]
     fn test_invalid_input_1() {
         let _result = parse_prefixes("7KBI").expect("Test Passed");
     }
 
     #[test]
-    #[should_panic]
+    #[should_panic(expected = "Test Passed")]
     fn test_invalid_input_2() {
         let _result = parse_prefixes("5mn").expect("Test Passed");
     }
 
     #[test]
-    #[should_panic]
+    #[should_panic(expected = "Test Passed")]
     fn test_invalid_input_3() {
         let _result = parse_prefixes("1b23434b").expect("Test Passed");
     }
 
     #[test]
-    #[should_panic]
+    #[should_panic(expected = "Test Passed")]
     fn test_invalid_input_4() {
         let _result = parse_prefixes("231m4b").expect("Test Passed");
     }
