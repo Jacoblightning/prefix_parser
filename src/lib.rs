@@ -509,6 +509,7 @@ mod pubapi_tests {
 #[cfg(test)]
 mod privapi_tests {
     use super::{parse_one_letter_prefix,parse_two_letter_prefix,parse_three_letter_prefix};
+    use alloc::vec::Vec;
     
     #[test]
     fn test_invalid_1s() {
