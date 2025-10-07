@@ -36,13 +36,13 @@ static PREFIXES: [char; 11] = ['b', 'k', 'm', 'g', 't', 'p', 'e', 'z', 'y', 'r',
 /// (The value was below -2^127 or above 2^127-1)
 ///
 fn parse_one_letter_prefix(string_chars: &[char], si: bool) -> Option<i128> {
-    let prefix = string_chars.last().unwrap();
+    let prefix = string_chars.last()?.to_ascii_lowercase();
 
     let number_length = string_chars.len() - 1;
 
     if let Some(prefix_value) = PREFIXES
         .iter()
-        .position(|&c| c == prefix.to_ascii_lowercase())
+        .position(|&c| c == prefix)
     {
         // We have to check that the beginning is actually a number
 
@@ -80,7 +80,11 @@ fn parse_one_letter_prefix(string_chars: &[char], si: bool) -> Option<i128> {
 /// (The value was below -2^127 or above 2^127-1)
 ///
 fn parse_two_letter_prefix(string_chars: &[char]) -> Option<i128> {
-    let number_length = string_chars.len() - 2;
+    let str_len = string_chars.len();
+    if str_len < 2 {
+        return None;
+    }
+    let number_length = str_len - 2;
 
     let prefix = &string_chars[number_length..];
 
@@ -121,7 +125,11 @@ fn parse_two_letter_prefix(string_chars: &[char]) -> Option<i128> {
 /// (The value was below -2^127 or above 2^127-1)
 ///
 fn parse_three_letter_prefix(string_chars: &[char]) -> Option<i128> {
-    let number_length = string_chars.len() - 3;
+    let str_len = string_chars.len();
+    if str_len < 3 {
+        return None;
+    }
+    let number_length = str_len - 3;
 
     let prefix = &string_chars[number_length..];
 
@@ -150,9 +158,9 @@ fn parse_three_letter_prefix(string_chars: &[char]) -> Option<i128> {
 ///
 /// # Panics
 ///
-/// This function will panic if the result adds up to over 2^127-1 bytes or lower than -2^127 bytes.
+/// This function will panic if the result is outside the range [-2^127, 2^127-1) bytes.
 ///
-/// (170141183460469231731687303715884105727 and -170141183460469231731687303715884105728 bytes respectively)
+/// (-170141183460469231731687303715884105728 - 170141183460469231731687303715884105727)
 ///
 /// # Errors
 ///
@@ -256,8 +264,8 @@ pub fn parse_prefixes(prefixed_string: &str) -> Result<i128, String> {
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
+mod pubapi_tests {
+    use super::parse_prefixes;
 
     #[test]
     fn test_one_letter_prefix() {
@@ -296,7 +304,7 @@ mod tests {
     }
 
     #[test]
-    fn test_correct_one_letter_prefixes() {
+    fn test_correct_prefixes() {
         let result = parse_prefixes("1b").unwrap();
         assert_eq!(result, 1);
         let result = parse_prefixes("1k").unwrap();
@@ -392,6 +400,10 @@ mod tests {
 
     #[test]
     fn test_negatives() {
+        let result = parse_prefixes("-1b").unwrap();
+        assert_eq!(result, -1);
+        let result = parse_prefixes("-1bi").unwrap();
+        assert_eq!(result, -1);
         let result = parse_prefixes("-1000m").unwrap();
         assert_eq!(result, -1048576000);
         let result = parse_prefixes("-4212ki").unwrap();
@@ -416,7 +428,15 @@ mod tests {
     }
 
     #[test]
-    fn test_below_overflow() {
+    #[should_panic(expected = "attempt to multiply with overflow")]
+    fn test_underflow() {
+        let _result = parse_prefixes("-134217729q");
+    }
+
+    #[test]
+    fn test_just_below_overflow() {
+        // Overflow
+        
         let result = parse_prefixes("134217727q").unwrap();
 
         assert_eq!(result, 170141182192818631503457902219180900352);
@@ -426,6 +446,16 @@ mod tests {
 
         assert_eq!(result, (2u128.pow(127) - 1) as i128);
         assert_eq!(result, 170141183460469231731687303715884105727);
+        assert_eq!(result, i128::MAX);
+
+        // Underflow
+        let result = parse_prefixes("-134217728q").unwrap();
+        
+        let result2 = parse_prefixes("-170141183460469231731687303715884105728bi").unwrap();
+
+        assert_eq!(result2, result);
+        assert_eq!(result, i128::MIN);
+        assert_eq!(result, -170141183460469231731687303715884105728);
     }
 
     #[test]
@@ -473,5 +503,88 @@ mod tests {
     #[should_panic(expected = "Test Passed")]
     fn test_invalid_input_4() {
         let _result = parse_prefixes("231m4b").expect("Test Passed");
+    }
+}
+
+#[cfg(test)]
+mod privapi_tests {
+    use super::{parse_one_letter_prefix,parse_two_letter_prefix,parse_three_letter_prefix};
+    
+    #[test]
+    fn test_invalid_1s() {
+        assert_eq!(parse_one_letter_prefix(&"".chars().collect::<Vec<char>>(), false), None);
+        assert_eq!(parse_one_letter_prefix(&"b".chars().collect::<Vec<char>>(), false), None);
+        assert_eq!(parse_one_letter_prefix(&"mb".chars().collect::<Vec<char>>(), false), None);
+        assert_eq!(parse_one_letter_prefix(&"mib".chars().collect::<Vec<char>>(), false), None);
+        assert_eq!(parse_one_letter_prefix(&"sierbv".chars().collect::<Vec<char>>(), false), None);
+        assert_eq!(parse_one_letter_prefix(&"283974".chars().collect::<Vec<char>>(), false), None);
+        assert_eq!(parse_one_letter_prefix(&"032sc".chars().collect::<Vec<char>>(), false), None);
+        assert_eq!(parse_one_letter_prefix(&"39ki".chars().collect::<Vec<char>>(), false), None);
+        assert_eq!(parse_one_letter_prefix(&"12mi".chars().collect::<Vec<char>>(), false), None);
+        assert_eq!(parse_one_letter_prefix(&"12mib".chars().collect::<Vec<char>>(), false), None);
+        assert_eq!(parse_one_letter_prefix(&"12kib".chars().collect::<Vec<char>>(), false), None);
+    }
+
+    #[test]
+    fn test_invalid_2s() {
+        assert_eq!(parse_two_letter_prefix(&"".chars().collect::<Vec<char>>()), None);
+        assert_eq!(parse_two_letter_prefix(&"b".chars().collect::<Vec<char>>()), None);
+        assert_eq!(parse_two_letter_prefix(&"mb".chars().collect::<Vec<char>>()), None);
+        assert_eq!(parse_two_letter_prefix(&"mib".chars().collect::<Vec<char>>()), None);
+        assert_eq!(parse_two_letter_prefix(&"sierbv".chars().collect::<Vec<char>>()), None);
+        assert_eq!(parse_two_letter_prefix(&"283974".chars().collect::<Vec<char>>()), None);
+        assert_eq!(parse_two_letter_prefix(&"032sc".chars().collect::<Vec<char>>()), None);
+        assert_eq!(parse_two_letter_prefix(&"03b".chars().collect::<Vec<char>>()), None);
+        assert_eq!(parse_two_letter_prefix(&"03m".chars().collect::<Vec<char>>()), None);
+        assert_eq!(parse_two_letter_prefix(&"03mib".chars().collect::<Vec<char>>()), None);
+        assert_eq!(parse_two_letter_prefix(&"03ji".chars().collect::<Vec<char>>()), None);
+        assert_eq!(parse_two_letter_prefix(&"03gib".chars().collect::<Vec<char>>()), None);
+        
+    }
+
+    #[test]
+    fn test_invalid_3s() {
+        assert_eq!(parse_three_letter_prefix(&"".chars().collect::<Vec<char>>()), None);
+        assert_eq!(parse_three_letter_prefix(&"b".chars().collect::<Vec<char>>()), None);
+        assert_eq!(parse_three_letter_prefix(&"mb".chars().collect::<Vec<char>>()), None);
+        assert_eq!(parse_three_letter_prefix(&"mib".chars().collect::<Vec<char>>()), None);
+        assert_eq!(parse_three_letter_prefix(&"sierbv".chars().collect::<Vec<char>>()), None);
+        assert_eq!(parse_three_letter_prefix(&"283974".chars().collect::<Vec<char>>()), None);
+        assert_eq!(parse_three_letter_prefix(&"032sc".chars().collect::<Vec<char>>()), None);
+        assert_eq!(parse_three_letter_prefix(&"39ki".chars().collect::<Vec<char>>()), None);
+        assert_eq!(parse_three_letter_prefix(&"12mi".chars().collect::<Vec<char>>()), None);
+        assert_eq!(parse_three_letter_prefix(&"12k".chars().collect::<Vec<char>>()), None);
+    }
+
+    #[test]
+    fn test_valid_1s() {
+        assert_eq!(parse_one_letter_prefix(&"1b".chars().collect::<Vec<char>>(), false), Some(1));
+        assert_eq!(parse_one_letter_prefix(&"1b".chars().collect::<Vec<char>>(), true), Some(1));
+        assert_eq!(parse_one_letter_prefix(&"100k".chars().collect::<Vec<char>>(), false), Some(102400));
+        assert_eq!(parse_one_letter_prefix(&"100k".chars().collect::<Vec<char>>(), true), Some(100000));
+        assert_eq!(parse_one_letter_prefix(&"-1b".chars().collect::<Vec<char>>(), false), Some(-1));
+        assert_eq!(parse_one_letter_prefix(&"-1b".chars().collect::<Vec<char>>(), true), Some(-1));
+        assert_eq!(parse_one_letter_prefix(&"-100k".chars().collect::<Vec<char>>(), false), Some(-102400));
+        assert_eq!(parse_one_letter_prefix(&"-100k".chars().collect::<Vec<char>>(), true), Some(-100000));
+    }
+
+    #[test]
+    fn test_valid_2s() {
+        assert_eq!(parse_two_letter_prefix(&"1bi".chars().collect::<Vec<char>>()), Some(1));
+        assert_eq!(parse_two_letter_prefix(&"1bb".chars().collect::<Vec<char>>()), Some(1));
+        assert_eq!(parse_two_letter_prefix(&"100ki".chars().collect::<Vec<char>>()), Some(102400));
+        assert_eq!(parse_two_letter_prefix(&"100kb".chars().collect::<Vec<char>>()), Some(100000));
+        assert_eq!(parse_two_letter_prefix(&"-1bi".chars().collect::<Vec<char>>()), Some(-1));
+        assert_eq!(parse_two_letter_prefix(&"-1bb".chars().collect::<Vec<char>>()), Some(-1));
+        assert_eq!(parse_two_letter_prefix(&"-100ki".chars().collect::<Vec<char>>()), Some(-102400));
+        assert_eq!(parse_two_letter_prefix(&"-100kb".chars().collect::<Vec<char>>()), Some(-100000));
+    }
+
+    #[test]
+    fn test_valid_3s() {
+        assert_eq!(parse_three_letter_prefix(&"1bib".chars().collect::<Vec<char>>()), Some(1));
+        assert_eq!(parse_three_letter_prefix(&"100kib".chars().collect::<Vec<char>>()), Some(102400));
+        assert_eq!(parse_three_letter_prefix(&"-1bib".chars().collect::<Vec<char>>()), Some(-1));
+        assert_eq!(parse_three_letter_prefix(&"-100kib".chars().collect::<Vec<char>>()), Some(-102400));
     }
 }
